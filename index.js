@@ -105,27 +105,27 @@ function loadMainPrompts() {
             case "UPDATE_EMPLOYEE_MANAGER":
                 updateEmployeeManager();
                 break;
-            // case "VIEW_DEPARTMENTS":
-            //     viewDepartments();
-            //     break;
-            // case "ADD_DEPARTMENT":
-            //     addDepartment();
-            //     break;
-            // case "REMOVE_DEPARTMENT":
-            //     removeDepartment();
-            //     break;
-            // case "VIEW_UTILIZED_BUDGET_BY_DEPARTMENT":
-            //     viewUtilizedBudgetByDepartment();
-            //     break;
-            // case "VIEW_ROLES":
-            //     viewRoles();
-            //     break;
-            // case "ADD_ROLE":
-            //     addRole();
-            //     break;
-            // case "REMOVE_ROLE":
-            //     removeRole();
-            //     break;
+            case "VIEW_DEPARTMENTS":
+                viewDepartments();
+                break;
+            case "ADD_DEPARTMENT":
+                addDepartment();
+                break;
+            case "REMOVE_DEPARTMENT":
+                removeDepartment();
+                break;
+            case "VIEW_UTILIZED_BUDGET_BY_DEPARTMENT":
+                viewUtilizedBudgetByDepartment();
+                break;
+            case "VIEW_ROLES":
+                viewRoles();
+                break;
+            case "ADD_ROLE":
+                addRole();
+                break;
+            case "REMOVE_ROLE":
+                removeRole();
+                break;
             default:
                 quit();
         }
@@ -286,15 +286,15 @@ function addEmployee() {
 
                                             db.createEmployee(employee);
                                         })
-                                                .then(() => console.log(
-                                                    `Added ${firstName} ${lastName} to the database`
-                                                ))
-                                                .then(() => loadMainPrompts())
-                                        })
+                                        .then(() => console.log(
+                                            `Added ${firstName} ${lastName} to the database`
+                                        ))
+                                        .then(() => loadMainPrompts())
                                 })
                         })
                 })
-        }
+        })
+}
 
 // Update an employee's role
 function updateEmployeeRole() {
@@ -367,6 +367,64 @@ function updateEmployeeManager() {
         })
 }
 
+// View all departments
+function viewDepartments() {
+    db.findAllDepartments()
+        .then(([rows]) => {
+            let departments = rows;
+            console.log("\n");
+            console.table(departments);
+        })
+        .then(() => loadMainPrompts());
+}
+
+// Add a department
+function addDepartment() {
+    prompt([
+        {
+            name: "name",
+            message: "What is the name of the department?"
+        }
+    ])
+        .then(res => db.createDepartment(res))
+        .then(() => console.log(`Added the department to the database`))
+        .then(() => loadMainPrompts());
+}
+
+// Delete a department
+function removeDepartment() {
+    db.findAllDepartments()
+        .then(([rows]) => {
+            let departments = rows;
+            const departmentChoices = departments.map(({ id, name }) => ({
+                name: name,
+                value: id
+            }));
+
+            prompt([
+                {
+                    type: "list",
+                    name: "departmentId",
+                    message: "Which department do you want to remove?",
+                    choices: departmentChoices
+                }
+            ])
+                .then(res => db.removeDepartment(res.departmentId))
+                .then(() => console.log(`Removed department from the database`))
+                .then(() => loadMainPrompts())
+        })
+}
+
+// View Utilized Budget by Department
+function viewUtilizedBudgetByDepartment() {
+    db.viewDepartmentBudgets()
+        .then(([rows]) => {
+            let budget = rows;
+            console.log("\n");
+            console.table(budget);
+        })
+        .then(() => loadMainPrompts());
+}
 
 // View all roles
 function viewRoles() {
