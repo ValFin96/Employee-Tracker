@@ -317,6 +317,25 @@ function updateEmployeeRole() {
                 .then(res => {
                     let employeeId = res.employeeId;
 
+                    db.findAllRoles()
+                        .then(([rows]) => {
+                            let roles = rows;
+                            const roleChoices = roles.map(({ id, title }) => ({
+                                name: title,
+                                value: id
+                            }));
+
+                            prompt({
+                                type: "list",
+                                name: "roleId",
+                                message: "What is the employee's new role?",
+                                choices: roleChoices
+                            })
+                                .then(res => db.updateEmployeeRole(employeeId, res.roleId))
+                                .then(() => console.log("Updated employee's role"))
+                                .then(() => loadMainPrompts())
+                        })
+
                 })
                 .then(() => loadMainPrompts())
         })
@@ -359,7 +378,7 @@ function updateEmployeeManager() {
                                     choices: managerChoices
                                 }
                             ])
-                                .then(res => db.updateEmployeeManager(res.managerId, employeeId))
+                                .then(res => db.updateEmployeeManager(employeeId, res.managerId))
                                 .then(() => console.log("Updated employee's manager"))
                                 .then(() => loadMainPrompts())
                         })
@@ -467,7 +486,7 @@ function addRole() {
                     db.createRole(res);
                 })
                 .then(() => console.log(
-                    `Added ${res.title} to the database`
+                    "Added to the database!"
                 ))
                 .then(() => loadMainPrompts())
         })
